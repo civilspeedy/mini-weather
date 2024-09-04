@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useScale } from '../logic/hooks';
 
 export default function Time(): React.JSX.Element {
   const [time, setTime] = useState<string>('');
+  const size = useScale(7);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -15,7 +17,15 @@ export default function Time(): React.JSX.Element {
   }, []);
 
   return (
-    <h1 style={{ position: 'absolute', right: '1%', top: '0.5%' }}>{time}</h1>
+    <h1
+      style={{
+        position: 'absolute',
+        right: '1%',
+        top: '0.5%',
+        fontSize: size,
+      }}>
+      {time}
+    </h1>
   );
 }
 

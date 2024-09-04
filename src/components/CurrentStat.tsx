@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useScale } from '../logic/hooks';
 
 type Data = { value: number; type: string };
 type Text = { title: string; measurement: string };
@@ -8,6 +9,9 @@ export default function CurrentStat({ value, type }: Data): React.JSX.Element {
     title: '',
     measurement: '',
   });
+
+  const h2Size = useScale(2);
+  const pSize = useScale(3);
 
   useEffect(() => {
     setText(() => {
@@ -31,15 +35,15 @@ export default function CurrentStat({ value, type }: Data): React.JSX.Element {
 
   return (
     <div style={{ margin: 0 }}>
-      <h2>{text.title}</h2>
+      <h2 style={{ fontSize: h2Size }}>{text.title}</h2>
       <div
         style={{
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
         }}>
-        <h3>{value}</h3>
-        <h2>{text.measurement}</h2>
+        <p style={{ fontSize: pSize, fontWeight: 'bold' }}>{value}</p>
+        <h2 style={{ fontSize: h2Size }}>{text.measurement}</h2>
       </div>
     </div>
   );
