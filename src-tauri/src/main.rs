@@ -18,46 +18,19 @@ fn scale(original: f32, state: State<'_, Window>) -> f32 {
     original * floater
 }
 
-#[derive(PartialEq)]
-struct DateTime {
-    day: u16,
-    month: u16,
-    year: u16,
-    hrs: u16,
-    mins: u16,
-}
-
-fn date_out_of_string(date: &str) -> DateTime {
-    let segments: Vec<&str> = date.split(['-', 'T', ':']).collect();
-    let mut num_values = Vec::new();
-
-    for index in 0..segments.len() {
-        match segments[index].parse::<u16>() {
-            Ok(num) => num_values.push(num),
-            Err(e) => println!("Err in date_out_of_string: {}", e),
+#[tauri::command]
+fn rusty_search(when: String, data: Vec<f32>, time_list: Vec<String>) -> f32 {
+    let mut index: usize = 0;
+    for i in 0..time_list.len() {
+        if when == time_list[i] {
+            index = i;
         }
     }
 
-    let date_time: DateTime = DateTime {
-        year: num_values[0],
-        month: num_values[1],
-        day: num_values[2],
-        hrs: num_values[3],
-        mins: num_values[4],
-    };
-
-    date_time
-}
-
-fn get_data(date: DateTime, dates: Vec<&str>, date_type: String) {
-    for index in 0..dates.len() {
-        let being_compared: DateTime = date_out_of_string(dates[index]);
-        if date == being_compared {};
-    }
+    return data[index];
 }
 
 fn main() {
-    date_out_of_string("2024-09-04T00:00");
     tauri::Builder::default()
         .setup(|app| {
             let window: Window = app.get_window("main").unwrap();
@@ -66,7 +39,7 @@ fn main() {
             app.manage(window);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![scale])
+        .invoke_handler(tauri::generate_handler![scale, rusty_search])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
