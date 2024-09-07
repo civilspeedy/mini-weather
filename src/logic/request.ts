@@ -1,5 +1,8 @@
-import { invoke } from '@tauri-apps/api';
+import { useEffect, useState } from 'react';
 
+/**
+ * Data type for data received from open-meteo for easier manipulation.
+ */
 export type WeatherData = {
     latitude: number;
     longitude: number;
@@ -24,21 +27,34 @@ export type WeatherData = {
     };
 };
 
+/**
+ * A simple date and time object for easier access and readability when dealing with date and time.
+ */
 type DateTime = {
     date: Date;
     time: Time;
 };
+/**
+ * Simple day month year object for date variables.
+ */
 type Date = {
     day: number;
     month: number;
     year: number;
 };
+/**
+ * Simple hours and minutes object to represent a time value.
+ */
 type Time = {
     hours: number;
     minutes: number;
 };
 
-export async function requestWeather(): Promise<WeatherData | null> {
+/**
+ * Requests weather data from open-meteo and returns a WeatherData object.
+ * @returns the data from open-meteo that has been converted to WeatherData type/object.
+ */
+async function requestWeather(): Promise<WeatherData | null> {
     const request = await fetch(
         'https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m&forecast_days=1'
     );
@@ -48,6 +64,7 @@ export async function requestWeather(): Promise<WeatherData | null> {
     let weatherData: WeatherData = JSON.parse(response);
 
     const timeArray = weatherData.hourly.time;
+
     for (let i = 0; i < timeArray.length; i++) {
         const originalDateTime = timeArray[i];
 
@@ -59,6 +76,11 @@ export async function requestWeather(): Promise<WeatherData | null> {
     return weatherData;
 }
 
+/**
+ * Converts a datetime string to the DataTime object/type.
+ * @param string the datetime string to be converted.
+ * @returns the converted DateTime value.
+ */
 function stringToDate(string: string): DateTime {
     const segments = string.split('-');
 
@@ -78,23 +100,63 @@ function stringToDate(string: string): DateTime {
     return { date, time };
 }
 
-type WhatKey = keyof WeatherData['hourly'];
+/**
+ * A type for the key data recieved from open-meteo api to be displayed.
+ */
+type CoreData = {
+    dateTime: DateTime[];
+    temperature: number[];
+    rainChance: number[];
+    weather_code: number[];
+    windSpeed: number[];
+};
 
-async function getData(
-    data: WeatherData,
-    what: WhatKey,
-    when: string
-): Promise<number | null> {
-    let return_data: number = 0;
-
+/**
+ * Converts WeatherData type to CoreData.
+ * @param data the WeatherData to be converted.
+ * @returns Converted CoreData.
+ */
+function dataToCore(data: WeatherData | null): CoreData | null {
     if (data !== null) {
-        return_data = await invoke('rusty_search', {
-            when: when,
-            data: data.hourly[what],
-            time_list: data.hourly.time,
-        });
-        return return_data;
+        const cutDownData = data.hourly;
+        const dateTime: DateTime[] = [];
+
+        for (let stringDT of cutDownData.time) {
+            if (typeof stringDT === 'string') {
+                const convertedDT: DateTime = stringToDate(stringDT);
+                dateTime.push(convertedDT);
+            }
+        }
+
+        return {
+            dateTime,
+            temperature: cutDownData.temperature_2m,
+            rainChance: cutDownData.precipitation_probability,
+            weather_code: cutDownData.weather_code,
+            windSpeed: cutDownData.wind_speed_10m,
+        };
     }
 
     return null;
 }
+
+/**
+ * A custom hook to request and return a main weather data at a 1 hour interval.
+ * @returns Weather data or null if API failed.
+ */
+export const useWeather = (): CoreData | null => {
+    const [data, setData] = useState<CoreData | null>(null);
+
+    useEffect(() => {
+        const fetchWeather = async () => {
+            const fetchedData: WeatherData | null = await requestWeather();
+            setData(dataToCore(fetchedData));
+        };
+
+        const timer = setInterval(() => fetchWeather(), 3600000);
+
+        return () => clearInterval(timer);
+    }, []);
+
+    return data;
+};
