@@ -101,9 +101,9 @@ function stringToDate(string: string): DateTime {
 }
 
 /**
- * A type for the key data recieved from open-meteo api to be displayed.
+ * A type for the key data received from open-meteo api to be displayed.
  */
-type CoreData = {
+export type CoreData = {
     dateTime: DateTime[];
     temperature: number[];
     rainChance: number[];

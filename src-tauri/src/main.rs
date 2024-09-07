@@ -19,6 +19,11 @@ fn scale(original: f32, state: State<'_, Window>) -> f32 {
 }
 
 #[tauri::command]
+fn log(message: String) {
+    println!("LOG: | {} |", message);
+}
+
+#[tauri::command]
 fn rusty_search(when: String, data: Vec<f32>, time_list: Vec<String>) -> f32 {
     let mut index: usize = 0;
     for i in 0..time_list.len() {
@@ -39,7 +44,7 @@ fn main() {
             app.manage(window);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![scale, rusty_search])
+        .invoke_handler(tauri::generate_handler![scale, rusty_search, log])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -1,58 +1,64 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import Time from './components/Time';
 import CurrentStat from './components/CurrentStat';
-
-type CurrentWeather = {
-  temperature: number;
-  precipitation: number;
-  humidity: number;
-  windSpeed: number;
-};
+import { CoreData, useWeather } from './logic/request';
+import ErrorMessage from './components/ErrorMessage';
+import { invoke } from '@tauri-apps/api';
 
 export default function App(): React.JSX.Element {
-  const temp: CurrentWeather = {
-    temperature: 20,
-    precipitation: 8,
-    humidity: 10,
-    windSpeed: 5,
-  };
-  const [weatherData, setWeatherData] = useState<CurrentWeather>(temp);
+  const data: CoreData | null = useWeather();
+  const [error, setError] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (data === null) setError(true);
+    else setError(false);
+
+    invoke('log', { message: data?.temperature[1] }); // doesn't work
+  }, [data]);
 
   return (
     <>
-      <div id='top'>
-        <div id='left'>
-          <div
-            id='row'
-            style={{ gap: 20 }}>
-            <CurrentStat
-              value={weatherData.temperature}
-              type='temp'
-            />
-            <CurrentStat
-              value={weatherData.precipitation}
-              type='prec'
-            />
+      {error ? (
+        <>
+          <div id='top'>
+            <div id='left'>
+              <div
+                id='row'
+                style={{ gap: 20 }}
+              >
+                <CurrentStat
+                  value={0}
+                  type='temp'
+                />
+                <CurrentStat
+                  value={0}
+                  type='prec'
+                />
+              </div>
+              <div
+                id='row'
+                style={{ gap: 20 }}
+              >
+                <CurrentStat
+                  value={0}
+                  type='humid'
+                />
+                <CurrentStat
+                  value={0}
+                  type='wind'
+                />
+              </div>
+            </div>
+            <div id='right'>
+              <Time />
+            </div>
           </div>
-          <div
-            id='row'
-            style={{ gap: 20 }}>
-            <CurrentStat
-              value={weatherData.humidity}
-              type='humid'
-            />
-            <CurrentStat
-              value={weatherData.windSpeed}
-              type='wind'
-            />
-          </div>
-        </div>
-        <div id='right'>
-          <Time />
-        </div>
-      </div>
-      <div id='bottom'></div>
+          <div id='bottom'></div>
+        </>
+      ) : (
+        <ErrorMessage />
+      )}
     </>
   );
 }
