@@ -145,14 +145,14 @@ function getCore(): CoreData | null {
 }
 
 type NowWeather = {
-  dateTime: DateTime;
   temperature: number;
   rainChance: number;
   weather_code: number;
   windSpeed: number;
 };
 
-function nowWeather() {
+// needs testing
+function nowWeather(): NowWeather | null {
   const data: CoreData | null = getCore();
 
   if (data !== null) {
@@ -167,18 +167,44 @@ function nowWeather() {
       date: { day, month, year },
       time: { hours, minutes },
     };
-  }
+
+    const index: number | null = getIndex(
+      now,
+      data.dateTime,
+      0,
+      data.dateTime.length
+    );
+    if (index !== null) {
+      const temperature: number = data.temperature[index];
+      const rainChance: number = data.rainChance[index];
+      const weather_code: number = data.weather_code[index];
+      const windSpeed: number = data.windSpeed[index];
+
+      return { temperature, rainChance, weather_code, windSpeed };
+    } else return null;
+  } else return null;
 }
 
-function CompareDateTimes(valueOne: DateTime, valueTwo: DateTime) {
-  const days: boolean = valueOne.date.day === valueTwo.date.day;
+function checkIfDTSame(valueOne: DateTime, valueTwo: DateTime): boolean {
+  const day: boolean = valueOne.date.day === valueTwo.date.day;
   const month: boolean = valueOne.date.month === valueTwo.date.month;
   const year: boolean = valueOne.date.year === valueTwo.date.year;
 
   const hours: boolean = valueOne.time.hours === valueTwo.time.hours;
   const minutes: boolean = valueOne.time.minutes === valueTwo.time.minutes;
 
-  return (((days === month) === year) === hours) === minutes;
+  return (((day === month) === year) === hours) === minutes;
+}
+
+function checkIfDTMore(valueOne: DateTime, valueTwo: DateTime): boolean {
+  const day: boolean = valueOne.date.day > valueTwo.date.day;
+  const month: boolean = valueOne.date.month > valueTwo.date.month;
+  const year: boolean = valueOne.date.year > valueTwo.date.year;
+
+  const hours: boolean = valueOne.time.hours > valueTwo.time.hours;
+  const minutes: boolean = valueOne.time.minutes > valueTwo.time.minutes;
+
+  return (((day === month) === year) === hours) === minutes;
 }
 
 function getIndex(
@@ -186,12 +212,21 @@ function getIndex(
   array: DateTime[],
   upper: number,
   lower: number
-) {
+): number | null {
   if (array.length === 1) return 1;
   else {
     const midpoint: number = Math.round((lower + upper) / 2);
-    if (array[midpoint] === target) return midpoint;
+    if (checkIfDTSame(array[midpoint], target)) return midpoint;
+
+    if (checkIfDTMore(array[midpoint], target)) {
+      return getIndex(target, array, lower, midpoint - 1);
+    }
+
+    if (checkIfDTMore(target, array[midpoint])) {
+      return getIndex(target, array, midpoint + 1, upper);
+    }
   }
+  return null;
 }
 
 nowWeather();
