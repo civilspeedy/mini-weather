@@ -18,38 +18,6 @@ fn scale(original: f32, state: State<'_, Window>) -> f32 {
     original * floater
 }
 
-#[derive(PartialEq)]
-struct DateTime {
-    date: Date,
-    time: Time,
-}
-
-#[derive(PartialEq)]
-struct Date {
-    day: u8,
-    month: u8,
-    year: u8,
-}
-
-#[derive(PartialEq)]
-struct Time {
-    hours: u8,
-    minutes: u8,
-}
-
-#[tauri::command]
-fn get_index(target: DateTime, list: Vec<DateTime>) -> Option<usize> {
-    let mut index: usize = 0;
-    while index < list.len() {
-        if list[index] == target {
-            return Some(index);
-        } else {
-            index += 1;
-        }
-    }
-    return None;
-}
-
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
@@ -59,7 +27,7 @@ fn main() {
             app.manage(window);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![scale, get_index])
+        .invoke_handler(tauri::generate_handler![scale])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

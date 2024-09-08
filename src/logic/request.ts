@@ -170,4 +170,28 @@ function nowWeather() {
   }
 }
 
+function CompareDateTimes(valueOne: DateTime, valueTwo: DateTime) {
+  const days: boolean = valueOne.date.day === valueTwo.date.day;
+  const month: boolean = valueOne.date.month === valueTwo.date.month;
+  const year: boolean = valueOne.date.year === valueTwo.date.year;
+
+  const hours: boolean = valueOne.time.hours === valueTwo.time.hours;
+  const minutes: boolean = valueOne.time.minutes === valueTwo.time.minutes;
+
+  return (((days === month) === year) === hours) === minutes;
+}
+
+function getIndex(
+  target: DateTime,
+  array: DateTime[],
+  upper: number,
+  lower: number
+) {
+  if (array.length === 1) return 1;
+  else {
+    const midpoint: number = Math.round((lower + upper) / 2);
+    if (array[midpoint] === target) return midpoint;
+  }
+}
+
 nowWeather();
