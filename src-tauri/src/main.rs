@@ -18,21 +18,36 @@ fn scale(original: f32, state: State<'_, Window>) -> f32 {
     original * floater
 }
 
-#[tauri::command]
-fn log(message: String) {
-    println!("LOG: | {} |", message);
+#[derive(PartialEq)]
+struct DateTime {
+    date: Date,
+    time: Time,
+}
+
+#[derive(PartialEq)]
+struct Date {
+    day: u8,
+    month: u8,
+    year: u8,
+}
+
+#[derive(PartialEq)]
+struct Time {
+    hours: u8,
+    minutes: u8,
 }
 
 #[tauri::command]
-fn rusty_search(when: String, data: Vec<f32>, time_list: Vec<String>) -> f32 {
+fn get_index(target: DateTime, list: Vec<DateTime>) -> Option<usize> {
     let mut index: usize = 0;
-    for i in 0..time_list.len() {
-        if when == time_list[i] {
-            index = i;
+    while index < list.len() {
+        if list[index] == target {
+            return Some(index);
+        } else {
+            index += 1;
         }
     }
-
-    return data[index];
+    return None;
 }
 
 fn main() {
@@ -44,7 +59,7 @@ fn main() {
             app.manage(window);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![scale, rusty_search, log])
+        .invoke_handler(tauri::generate_handler![scale, get_index])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
