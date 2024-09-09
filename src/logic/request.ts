@@ -52,7 +52,7 @@ type Time = {
   minutes: number;
 };
 
-const useRequest = () => {
+export const useRequest = () => {
   const [data, setData] = useState<WeatherData | null>(null);
 
   useEffect(() => {
@@ -109,7 +109,7 @@ function stringToDate(string: string): DateTime {
 /**
  * A type for the key data received from open-meteo api to be displayed.
  */
-type CoreData = {
+export type CoreData = {
   dateTime: DateTime[];
   temperature: number[];
   rainChance: number[];
@@ -151,7 +151,7 @@ type NowWeather = {
   windSpeed: number;
 };
 
-// needs testing
+// don't forget to test
 function nowWeather(): NowWeather | null {
   const data: CoreData | null = getCore();
 
@@ -181,8 +181,9 @@ function nowWeather(): NowWeather | null {
       const windSpeed: number = data.windSpeed[index];
 
       return { temperature, rainChance, weather_code, windSpeed };
-    } else return null;
-  } else return null;
+    }
+  }
+  return null;
 }
 
 function checkIfDTSame(valueOne: DateTime, valueTwo: DateTime): boolean {
@@ -228,5 +229,3 @@ function getIndex(
   }
   return null;
 }
-
-nowWeather();
