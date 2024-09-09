@@ -123,7 +123,7 @@ export type CoreData = {
  */
 function getCore(): CoreData | null {
   const data: WeatherData | null = useRequest();
-  if (data !== null) {
+  if (data) {
     const cutDownData = data.hourly;
     const dateTime: DateTime[] = [];
 
@@ -144,7 +144,7 @@ function getCore(): CoreData | null {
   } else return null;
 }
 
-type NowWeather = {
+type Weather = {
   temperature: number;
   rainChance: number;
   weather_code: number;
@@ -152,10 +152,10 @@ type NowWeather = {
 };
 
 // don't forget to test
-function nowWeather(): NowWeather | null {
+function nowWeather(): Weather | null {
   const data: CoreData | null = getCore();
 
-  if (data !== null) {
+  if (data) {
     const day: number = date.getDay();
     const month: number = date.getMonth();
     const year: number = date.getFullYear();
@@ -174,14 +174,22 @@ function nowWeather(): NowWeather | null {
       0,
       data.dateTime.length
     );
-    if (index !== null) {
-      const temperature: number = data.temperature[index];
-      const rainChance: number = data.rainChance[index];
-      const weather_code: number = data.weather_code[index];
-      const windSpeed: number = data.windSpeed[index];
+    return weatherFromIndex(index, data);
+  }
+  return null;
+}
 
-      return { temperature, rainChance, weather_code, windSpeed };
-    }
+function weatherFromIndex(
+  index: number | null,
+  data: CoreData | null
+): Weather | null {
+  if (index && data) {
+    const temperature: number = data.temperature[index];
+    const rainChance: number = data.rainChance[index];
+    const weather_code: number = data.weather_code[index];
+    const windSpeed: number = data.windSpeed[index];
+
+    return { temperature, rainChance, weather_code, windSpeed };
   }
   return null;
 }
@@ -229,3 +237,30 @@ function getIndex(
   }
   return null;
 }
+
+function getFuture(amount: number) {
+  let dateConstructor = new Date();
+  const dates: DateTime[] = [];
+  const data: CoreData | null = getCore();
+  const weather: Weather[] = [];
+
+  if (data) {
+    for (let i = 1; i <= amount; i++) {
+      dateConstructor.setDate(dateConstructor.getDate() + i);
+      let dateString: string = dateConstructor.toISOString();
+      dateString = dateString.substring(0, 16);
+
+      const converted: DateTime = stringToDate(dateString);
+
+      dates.push(converted);
+    }
+
+    for (let date of dates) {
+      const index = getIndex(date, data.dateTime, 0, data.dateTime.length);
+      const tempWeather: Weather | null = weatherFromIndex(index, data);
+      if (tempWeather) weather.push(tempWeather);
+    }
+  }
+}
+
+getFuture(5);
