@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import codes from '../assets/weather_codes.json';
 
 const date: globalThis.Date = new Date();
 
@@ -144,30 +145,33 @@ function getCore(): CoreData | null {
   } else return null;
 }
 
-type Weather = {
+export type Weather = {
   temperature: number;
   rainChance: number;
   weather_code: number;
   windSpeed: number;
 };
 
+function getTodayAndNow(): DateTime {
+  const day: number = date.getDay();
+  const month: number = date.getMonth();
+  const year: number = date.getFullYear();
+
+  const hours: number = date.getHours();
+  const minutes: number = date.getMinutes();
+
+  return {
+    date: { day, month, year },
+    time: { hours, minutes },
+  };
+}
+
 // don't forget to test
 function nowWeather(): Weather | null {
   const data: CoreData | null = getCore();
 
   if (data) {
-    const day: number = date.getDay();
-    const month: number = date.getMonth();
-    const year: number = date.getFullYear();
-
-    const hours: number = date.getHours();
-    const minutes: number = date.getMinutes();
-
-    const now: DateTime = {
-      date: { day, month, year },
-      time: { hours, minutes },
-    };
-
+    const now: DateTime = getTodayAndNow();
     const index: number | null = getIndex(
       now,
       data.dateTime,
@@ -238,7 +242,7 @@ function getIndex(
   return null;
 }
 
-function getFuture(amount: number) {
+export function getFuture(amount: number): Weather[] {
   let dateConstructor = new Date();
   const dates: DateTime[] = [];
   const data: CoreData | null = getCore();
@@ -261,6 +265,17 @@ function getFuture(amount: number) {
       if (tempWeather) weather.push(tempWeather);
     }
   }
+  return weather;
 }
 
-getFuture(5);
+type CodesKey = keyof typeof codes;
+
+function weatherCodeTranslator(code: CodesKey): string {
+  const now: DateTime = getTodayAndNow();
+
+  if (now.time.hours >= 7) {
+    return codes[code].night;
+  } else {
+    return codes[code].day;
+  }
+}
