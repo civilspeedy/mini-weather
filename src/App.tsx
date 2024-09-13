@@ -4,6 +4,7 @@ import Time from './components/Time';
 import CurrentStat from './components/CurrentStat';
 import { useRequest } from './logic/request';
 import ErrorMessage from './components/ErrorMessage';
+import Icon from './components/Icon';
 
 export default function App(): React.JSX.Element {
   const data = useRequest();
@@ -49,7 +50,9 @@ export default function App(): React.JSX.Element {
               <Time />
             </div>
           </div>
-          <div id='bottom'></div>
+          <div id='bottom'>
+            <Icon />
+          </div>
         </>
       ) : (
         <ErrorMessage />
