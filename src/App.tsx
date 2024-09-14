@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import Time from './components/Time';
 import CurrentStat from './components/CurrentStat';
-import { useRequest } from './logic/request';
+import { useRequest } from './logic/Weather';
 import ErrorMessage from './components/ErrorMessage';
 import Icon from './components/Icon';
 

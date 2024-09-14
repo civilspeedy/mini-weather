@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getFuture, Weather } from '../logic/request';
+import { getFuture, Weather } from '../logic/Weather';
 
 export default function Next(): React.JSX.Element {
   const [data, setData] = useState<Weather[]>([]);
