@@ -38,3 +38,14 @@ export type WeatherData = {
     wind_speed_10m: number[];
   };
 };
+
+export type NumberDate = {
+  day: number;
+  month: number;
+  year: number;
+};
+
+export type NumberTime = {
+  hours: number;
+  minutes: number;
+};
