@@ -1,4 +1,4 @@
-export type Geolocate = {
+export type LocationData = {
   status: string;
   country: string;
   countryCode: string;
@@ -39,17 +39,6 @@ export type WeatherData = {
   };
 };
 
-export type NumberDate = {
-  day: number;
-  month: number;
-  year: number;
-};
-
-export type NumberTime = {
-  hours: number;
-  minutes: number;
-};
-
 export type DoubleIndex = {
   start: number | null;
   end: number | null;
@@ -59,6 +48,6 @@ export type TimeWeather = {
   time: string;
   temperature: number;
   precipitationProb: number;
-  weatherCode: number;
+  weatherCode: string;
   windSpeed: number;
 };

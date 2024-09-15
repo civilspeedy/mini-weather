@@ -1,43 +1,40 @@
-import {
-  DoubleIndex,
-  Geolocate,
-  NumberDate,
-  NumberTime,
-  TimeWeather,
-  WeatherData,
-} from './types';
+import { DoubleIndex, LocationData, TimeWeather, WeatherData } from './types';
 import codes from '../assets/weather_codes.json';
+
+/**
+ * Single Digit Check (SDC), checks if a number is single digit and adds a 0 at the start if a single digit.
+ * @param number the number to be converted to string.
+ * @returns The number as string with appropriate formatting.
+ */
+export const SDC = (number: number): string =>
+  number < 10 ? '0' + number : number.toString();
 
 class Weather {
   private data: WeatherData | undefined;
   private ip: string | undefined;
-  private location: Geolocate | undefined;
+  private location: LocationData | undefined;
   date: Date;
 
   /**
    * Constructor where initializer method is called and date is defined.
    */
   public constructor() {
-    this.init();
     this.date = new Date();
+    this.init();
   }
 
   /**
    * Initializer method to get values that are from outside sources.
    */
   private async init() {
-    try {
-      this.ip = await this.getIP();
-      this.location = await this.getLocation();
+    console.log(this.isDay());
+    this.ip = await this.getIP();
+    this.location = await this.getLocation();
 
-      const lat: number = this.location.lat;
-      const long: number = this.location.lon;
+    const lat: number = this.location.lat;
+    const long: number = this.location.lon;
 
-      this.data = await this.getWeather(lat, long);
-      console.log(this.getWeatherOnDate({ year: 2024, month: 9, day: 15 })); // works
-    } catch (e) {
-      console.error('err: ', e);
-    }
+    this.data = await this.getWeather(lat, long);
   }
 
   /**
@@ -52,7 +49,7 @@ class Weather {
    * Uses user's IP with ip-api service to get user location.
    * @returns object with user location data.
    */
-  private async getLocation(): Promise<Geolocate> {
+  private async getLocation(): Promise<LocationData> {
     return (await fetch('http://ip-api.com/json/' + this.ip)).json();
   }
 
@@ -75,7 +72,7 @@ class Weather {
    * @param code The weather code value.
    * @returns A brief description relating to the weather code.
    */
-  weatherCodeToString(code: number): string | null {
+  weatherCodeToString(code: number): string {
     type Key = keyof typeof codes;
 
     const codeAsString: string = code.toString();
@@ -86,30 +83,30 @@ class Weather {
       if (this.isDay()) return stringCode.day;
       else return stringCode.night;
     }
-    return null;
+    return '';
   }
 
   /**
    * Gets today's date from system.
-   * @returns Today's date in object as numbers.
+   * @returns Today's date as a string.
    */
-  getDate(): NumberDate {
+  getDate(): string {
     const day: number = this.date.getUTCDate();
     const month: number = this.date.getUTCMonth() + 1;
     const year: number = this.date.getUTCFullYear();
 
-    return { day, month, year };
+    return `${year}-${SDC(month)}-${SDC(day)}`;
   }
 
   /**
    * Gets current time from system.
    * @returns Current time in object as numbers.
    */
-  getTime(): NumberTime {
+  getTime(): string {
     const hours: number = this.date.getHours();
     const minutes: number = this.date.getMinutes();
 
-    return { hours, minutes };
+    return `${SDC(hours)}:${SDC(minutes)}`;
   }
 
   /**
@@ -117,7 +114,8 @@ class Weather {
    * @returns Boolean value representing whether it is day or night.
    */
   isDay(): boolean {
-    return this.getTime().hours < 7;
+    const hours: number = +this.getTime().substring(0, 3);
+    return hours < 7;
   }
 
   /**
@@ -125,14 +123,10 @@ class Weather {
    * @param date The target date.
    * @returns An array containing all the weather day for provided date.
    */
-  getWeatherOnDate(date: NumberDate): TimeWeather[] {
-    const dateString: string = `${date.year}-${SDC(date.month)}-${SDC(
-      date.day
-    )}`;
-
+  getWeatherOnDate(date: string): TimeWeather[] {
     const daysWeather: TimeWeather[] = [];
 
-    const indices: DoubleIndex = this.getDateIndex(dateString);
+    const indices: DoubleIndex = this.getDateIndex(date);
 
     if (indices.end && indices.start) {
       for (let index = indices.start; index <= indices.end; index++) {
@@ -158,7 +152,13 @@ class Weather {
       const weatherCode: number = hourly.weather_code[index];
       const windSpeed: number = hourly.wind_speed_10m[index];
 
-      return { time, temperature, precipitationProb, weatherCode, windSpeed };
+      return {
+        time,
+        temperature,
+        precipitationProb,
+        weatherCode: this.weatherCodeToString(weatherCode),
+        windSpeed,
+      };
     } else return null;
   }
 
@@ -185,14 +185,21 @@ class Weather {
     }
     return { start, end };
   }
+
+  private getAtTime(date: string, time: string): TimeWeather | null {
+    const dataAtDate: TimeWeather[] = this.getWeatherOnDate(date);
+
+    for (let item of dataAtDate) if (item.time === time) return item;
+
+    return null;
+  }
+
+  getNowWeather(): TimeWeather | null {
+    const date: string = this.getDate();
+    const time: string = this.getTime();
+
+    return this.getAtTime(date, time);
+  }
 }
 
 new Weather();
-
-/**
- * Single Digit Check (SDC), checks if a number is single digit and adds a 0 at the start if a single digit.
- * @param number the number to be converted to string.
- * @returns The number as string with appropriate formatting.
- */
-export const SDC = (number: number): string =>
-  number < 10 ? '0' + number : number.toString();
