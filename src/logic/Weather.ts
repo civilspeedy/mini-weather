@@ -120,6 +120,11 @@ class Weather {
     return this.getTime().hours < 7;
   }
 
+  /**
+   * Gets all the weather data for one specific date.
+   * @param date The target date.
+   * @returns An array containing all the weather day for provided date.
+   */
   getWeatherOnDate(date: NumberDate): TimeWeather[] {
     const dateString: string = `${date.year}-${SDC(date.month)}-${SDC(
       date.day
@@ -139,6 +144,11 @@ class Weather {
     return daysWeather;
   }
 
+  /**
+   * Gets all relevant data from a specific date-time index.
+   * @param index The index relating to the date and time of a group of data.
+   * @returns An object containing the relevant data for that index.
+   */
   private getFromIndex(index: number): TimeWeather | null {
     if (this.data) {
       const hourly = this.data.hourly;
