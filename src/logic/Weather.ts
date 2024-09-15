@@ -3,6 +3,7 @@ import {
   Geolocate,
   NumberDate,
   NumberTime,
+  TimeWeather,
   WeatherData,
 } from './types';
 import codes from '../assets/weather_codes.json';
@@ -32,9 +33,8 @@ class Weather {
       const lat: number = this.location.lat;
       const long: number = this.location.lon;
 
-      this.getWeather(lat, long);
-
-      console.log(this.weatherCodeToString(1));
+      this.data = await this.getWeather(lat, long);
+      console.log(this.getWeatherOnDate({ year: 2024, month: 9, day: 15 })); // works
     } catch (e) {
       console.error('err: ', e);
     }
@@ -120,10 +120,36 @@ class Weather {
     return this.getTime().hours < 7;
   }
 
-  getWeatherOnDate(date: NumberDate) {
+  getWeatherOnDate(date: NumberDate): TimeWeather[] {
     const dateString: string = `${date.year}-${SDC(date.month)}-${SDC(
       date.day
     )}`;
+
+    const daysWeather: TimeWeather[] = [];
+
+    const indices: DoubleIndex = this.getDateIndex(dateString);
+
+    if (indices.end && indices.start) {
+      for (let index = indices.start; index <= indices.end; index++) {
+        const tempWeather: TimeWeather | null = this.getFromIndex(index);
+        if (tempWeather) daysWeather.push(tempWeather);
+      }
+    }
+
+    return daysWeather;
+  }
+
+  private getFromIndex(index: number): TimeWeather | null {
+    if (this.data) {
+      const hourly = this.data.hourly;
+      const time: string = hourly.time[index].substring(11, 16);
+      const temperature: number = hourly.temperature_2m[index];
+      const precipitationProb: number = hourly.precipitation_probability[index];
+      const weatherCode: number = hourly.weather_code[index];
+      const windSpeed: number = hourly.wind_speed_10m[index];
+
+      return { time, temperature, precipitationProb, weatherCode, windSpeed };
+    } else return null;
   }
 
   /**

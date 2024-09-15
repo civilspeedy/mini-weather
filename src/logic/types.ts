@@ -54,3 +54,11 @@ export type DoubleIndex = {
   start: number | null;
   end: number | null;
 };
+
+export type TimeWeather = {
+  time: string;
+  temperature: number;
+  precipitationProb: number;
+  weatherCode: number;
+  windSpeed: number;
+};
