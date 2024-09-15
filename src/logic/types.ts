@@ -49,3 +49,8 @@ export type NumberTime = {
   hours: number;
   minutes: number;
 };
+
+export type DoubleIndex = {
+  start: number | null;
+  end: number | null;
+};

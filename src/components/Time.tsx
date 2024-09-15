@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useScale } from '../logic/hooks';
+import { SDC } from '../logic/Weather';
 
 export default function Time(): React.JSX.Element {
   const [time, setTime] = useState<string>('');
@@ -10,7 +11,7 @@ export default function Time(): React.JSX.Element {
       const date: Date = new Date();
       const hours: number = date.getHours();
       const minutes: number = date.getMinutes();
-      setTime(timeStringify(hours) + ':' + timeStringify(minutes));
+      setTime(SDC(hours) + ':' + SDC(minutes));
     }, 1000);
 
     return () => clearInterval(interval);
@@ -27,12 +28,4 @@ export default function Time(): React.JSX.Element {
       {time}
     </h1>
   );
-}
-
-function timeStringify(time: number): string {
-  let string: string = '' + time;
-  if (time < 10) {
-    string = '0' + time;
-  }
-  return string;
 }

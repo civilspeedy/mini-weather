@@ -1,4 +1,10 @@
-import { Geolocate, NumberDate, NumberTime, WeatherData } from './types';
+import {
+  DoubleIndex,
+  Geolocate,
+  NumberDate,
+  NumberTime,
+  WeatherData,
+} from './types';
 import codes from '../assets/weather_codes.json';
 
 class Weather {
@@ -113,6 +119,44 @@ class Weather {
   isDay(): boolean {
     return this.getTime().hours < 7;
   }
+
+  getWeatherOnDate(date: NumberDate) {
+    const dateString: string = `${date.year}-${SDC(date.month)}-${SDC(
+      date.day
+    )}`;
+  }
+
+  /**
+   * Gets the index of a date string for locating relevant weather data.
+   * @param date The date string being targeted.
+   * @returns An object containing the start and end point of the dates string indices.
+   */
+  private getDateIndex(date: string): DoubleIndex {
+    let start: number | null = null;
+    let end: number | null = null;
+
+    if (this.data) {
+      const timeArray: string[] = this.data.hourly.time;
+      for (let index = 0; index < timeArray.length; index++) {
+        if (timeArray[index].substring(0, 10) === date) {
+          if (start) {
+            end = index;
+          } else {
+            start = index;
+          }
+        }
+      }
+    }
+    return { start, end };
+  }
 }
 
 new Weather();
+
+/**
+ * Single Digit Check (SDC), checks if a number is single digit and adds a 0 at the start if a single digit.
+ * @param number the number to be converted to string.
+ * @returns The number as string with appropriate formatting.
+ */
+export const SDC = (number: number): string =>
+  number < 10 ? '0' + number : number.toString();
