@@ -2,18 +2,13 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import Time from './components/Time';
 import CurrentStat from './components/CurrentStat';
-import { useRequest } from './logic/Weather';
 import ErrorMessage from './components/ErrorMessage';
 import Icon from './components/Icon';
+import Weather from './logic/Weather';
 
 export default function App(): React.JSX.Element {
-  const data = useRequest();
+  const weather = new Weather(); // not sure how to implement
   const [error, setError] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (data === null) setError(true);
-    else setError(false);
-  }, [data]);
 
   return (
     <>
@@ -23,7 +18,8 @@ export default function App(): React.JSX.Element {
             <div id='left'>
               <div
                 id='row'
-                style={{ gap: 20 }}>
+                style={{ gap: 20 }}
+              >
                 <CurrentStat
                   value={0}
                   type='temp'
@@ -35,7 +31,8 @@ export default function App(): React.JSX.Element {
               </div>
               <div
                 id='row'
-                style={{ gap: 20 }}>
+                style={{ gap: 20 }}
+              >
                 <CurrentStat
                   value={0}
                   type='humid'

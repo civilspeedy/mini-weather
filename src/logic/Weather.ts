@@ -9,7 +9,7 @@ import codes from '../assets/weather_codes.json';
 export const SDC = (number: number): string =>
   number < 10 ? '0' + number : number.toString();
 
-class Weather {
+export default class Weather {
   private data: WeatherData | undefined;
   private ip: string | undefined;
   private location: LocationData | undefined;
@@ -27,14 +27,14 @@ class Weather {
    * Initializer method to get values that are from outside sources.
    */
   private async init() {
-    console.log(this.isDay());
     this.ip = await this.getIP();
     this.location = await this.getLocation();
-
     const lat: number = this.location.lat;
     const long: number = this.location.lon;
 
-    this.data = await this.getWeather(lat, long);
+    setInterval(async () => {
+      this.data = await this.getWeather(lat, long);
+    }, 360000);
   }
 
   /**
