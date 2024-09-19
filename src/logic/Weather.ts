@@ -1,5 +1,6 @@
 import { DoubleIndex, LocationData, TimeWeather, WeatherData } from './types';
 import codes from '../assets/weather_codes.json';
+import { useEffect, useState } from 'react';
 
 /**
  * Single Digit Check (SDC), checks if a number is single digit and adds a 0 at the start if a single digit.
@@ -29,12 +30,24 @@ export default class Weather {
   private async init() {
     this.ip = await this.getIP();
     this.location = await this.getLocation();
-    const lat: number = this.location.lat;
-    const long: number = this.location.lon;
 
     setInterval(async () => {
       this.data = await this.getWeather(lat, long);
     }, 360000);
+  }
+
+  useData() {
+    const [data, setData] = useState<WeatherData>();
+    if (this.location) {
+      const lat: number = this.location.lat;
+      const long: number = this.location.lon;
+    }
+
+    useEffect(() => {
+      const interval = setInterval(async () => {
+        setData(await this.getWeather());
+      }, 360000);
+    }, []);
   }
 
   /**

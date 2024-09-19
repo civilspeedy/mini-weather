@@ -19,12 +19,6 @@ export default function App(): React.JSX.Element {
   };
   const [nowData, setNowData] = useState<TimeWeather>(temp);
 
-  useEffect(() => {
-    const now: TimeWeather | null = weather.getNowWeather();
-    if (now) setNowData(now);
-    else setError(false);
-  }, []);
-
   return (
     <>
       {error ? (
