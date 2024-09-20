@@ -25,7 +25,7 @@ export default function App(): React.JSX.Element {
                                     type='temp'
                                 />
                                 <CurrentStat
-                                    value={0}
+                                    value={weather.now?.precipitationProb}
                                     type='prec'
                                 />
                             </div>
@@ -38,7 +38,7 @@ export default function App(): React.JSX.Element {
                                     type='humid'
                                 />
                                 <CurrentStat
-                                    value={0}
+                                    value={weather.now?.windSpeed}
                                     type='wind'
                                 />
                             </div>

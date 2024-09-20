@@ -1,7 +1,7 @@
-import { useDate, useTime } from './hooks';
 import { TimeWeather, WeatherData } from './types';
 import codes from '../assets/weather_codes.json';
 import { invoke } from '@tauri-apps/api';
+import { getDate, getTime } from './api';
 
 /**
  * Single Digit Checker - checks if a number is less than 10 and adds a 0 at the front if so.
@@ -43,25 +43,27 @@ function WCS(code: number, hours: number): string {
     return '';
 }
 
+const getHours = (time: string): number => +time.split(':')[0];
+
 /**
  * All To Now - Looks through all weather data and return weather for current date and time.
  * @param all All data.
  * @returns An object containing all data that applies now.
  */
-export function ATN(all: WeatherData): Promise<TimeWeather> {
+export function ATN(all: WeatherData): TimeWeather {
     // can't use hooks in here
-    const HOURS: number = new Date().getHours();
+    const TIME = getTime();
+    const HOURS = getHours(TIME);
 
-    const DATE_TIME: string = useDate() + 'T' + HOURS + ':00';
+    const DATE_TIME: string = getDate() + 'T' + HOURS + ':' + '00';
     const HOURLY = all.hourly;
     const INDEX: number = getIndex(HOURLY.time, DATE_TIME);
-    invoke('log', { msg: DATE_TIME });
 
     return {
-        time: HOURS + ':00',
+        time: TIME,
         temperature: HOURLY.temperature_2m[INDEX],
-        weatherCode: WCS(HOURLY.weather_code[INDEX], HOURS),
+        weatherCode: WCS(HOURLY.weather_code[INDEX], getHours(TIME)),
         precipitationProb: HOURLY.precipitation_probability[INDEX],
-        windSpeed: HOURLY.wind_speed_10m[INDEX],
+        windSpeed: Math.round(HOURLY.wind_speed_10m[INDEX] * 0.621371),
     };
 }

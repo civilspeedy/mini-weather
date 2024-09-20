@@ -1,10 +1,8 @@
 import { invoke } from '@tauri-apps/api';
 import { useEffect, useState } from 'react';
-import { getWeather } from './api';
+import { getDate, getTime, getWeather } from './api';
 import { TimeWeather, WeatherData } from './types';
 import { ATN, SDC } from './conversions';
-
-const DATE: Date = new Date();
 
 export function useScale(original: number): number {
     const [size, setSize] = useState<number>(0);
@@ -32,7 +30,6 @@ export function useWeather() {
             const tempData: WeatherData = await getWeather();
             setAll(tempData);
             setNow(ATN(tempData));
-            await invoke('log', { msg: JSON.stringify(now) });
         };
 
         requestData();
@@ -48,15 +45,12 @@ export function useTime(): string {
     const [time, setTime] = useState<string>('00:00');
 
     useEffect(() => {
-        const getTime = (): void => {
-            const HOURS: string = SDC(DATE.getHours());
-            const MINUTES: string = SDC(DATE.getMinutes());
-            setTime(HOURS + ':' + MINUTES);
+        const fetchTime = () => {
+            const FETCHED_TIME: string = getTime();
+            setTime(FETCHED_TIME);
         };
 
-        getTime();
-
-        const interval = setInterval(getTime, 1000);
+        const interval = setInterval(fetchTime, 1000);
 
         return () => clearInterval(interval);
     }, []);
@@ -68,15 +62,12 @@ export function useDate(): string {
     const [date, setDate] = useState<string>('yyyy-mm-dd');
 
     useEffect(() => {
-        const getDate = (): void => {
-            const YEAR: string = DATE.getFullYear().toString();
-            const MONTH: string = SDC(DATE.getMonth());
-            const DAY: string = SDC(DATE.getDay());
-
-            setDate(`${YEAR}-${MONTH}-${DAY}`);
+        const fetchDate = () => {
+            const FETCHED_DATE: string = getDate();
+            setDate(FETCHED_DATE);
         };
 
-        const interval = setInterval(getDate, 86_400_000);
+        const interval = setInterval(fetchDate, 86_400_000);
 
         return () => clearInterval(interval);
     }, []);
