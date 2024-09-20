@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import Time from './components/Time';
 import CurrentStat from './components/CurrentStat';
@@ -21,7 +21,7 @@ export default function App(): React.JSX.Element {
                                 style={{ gap: 20 }}
                             >
                                 <CurrentStat
-                                    value={weather?.hourly.temperature_2m[0]}
+                                    value={weather.now?.temperature}
                                     type='temp'
                                 />
                                 <CurrentStat

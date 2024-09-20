@@ -18,6 +18,11 @@ fn scale(original: f32, state: State<'_, Window>) -> f32 {
     original * floater
 }
 
+#[tauri::command]
+fn log(msg: &str) {
+    println!("LOG:{}", msg)
+}
+
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
@@ -27,7 +32,7 @@ fn main() {
             app.manage(window);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![scale])
+        .invoke_handler(tauri::generate_handler![scale, log])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
