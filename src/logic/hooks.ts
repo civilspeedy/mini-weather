@@ -1,48 +1,38 @@
 import { invoke } from '@tauri-apps/api';
 import { useEffect, useState } from 'react';
-import { LocationData, WeatherData } from './types';
+import { getWeather } from './api';
+import { WeatherData } from './types';
 
-export const useScale = (original: number) => {
-  const [size, setSize] = useState<number>();
+export function useScale(original: number): number {
+    const [size, setSize] = useState<number>(0);
 
-  const scale: Promise<number> = invoke('scale', { original: original });
+    const scale: Promise<number> = invoke('scale', { original: original });
 
-  useEffect(() => {
-    const wait = async () => {
-      setSize(await scale);
-    };
+    useEffect(() => {
+        const wait = async () => {
+            setSize(await scale);
+        };
 
-    wait();
-  }, []);
+        wait();
+    }, []);
 
-  return size;
-};
+    return size;
+}
 
-export const useWeather = (): WeatherData | null => {
-  // maybe do async
-  const [data, setData] = useState<WeatherData | null>(null);
+export function useWeather() {
+    const [data, setData] = useState<WeatherData>();
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetch('https://api.ipify.org')
-        .then((response) => response.text())
-        .then((ip) => fetch('http://ip-api.com/json/' + ip))
-        .then((response) => response.json())
-        .then((location: LocationData) => {
-          if (!location.lat || !location.lon) {
-            throw new Error('No location data');
-          }
-          return fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m&forecast_days=7`
-          );
-        })
-        .then((response) => response.json())
-        .then((response: WeatherData) => setData(response))
-        .catch((error) => console.error(error));
-    }, 36000);
+    useEffect(() => {
+        const requestData = async () => {
+            const tempData: WeatherData = await getWeather();
+            setData(tempData);
+        };
 
-    return () => clearInterval(interval);
-  }, []);
+        requestData();
 
-  return data;
-};
+        const interval = setInterval(requestData, 360000);
+        return () => clearInterval(interval);
+    }, []);
+
+    return data;
+}
