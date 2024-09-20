@@ -21,6 +21,7 @@ export function useScale(original: number): number {
 
 export function useWeather() {
     const [data, setData] = useState<WeatherData>();
+    // have this also return now and future weather
 
     useEffect(() => {
         const requestData = async () => {
