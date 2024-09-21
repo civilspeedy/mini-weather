@@ -1,6 +1,5 @@
 import { TimeWeather, WeatherData } from './types';
 import codes from '../assets/weather_codes.json';
-import { invoke } from '@tauri-apps/api';
 import { getDate, getTime } from './api';
 
 /**
@@ -66,4 +65,51 @@ export function ATN(all: WeatherData): TimeWeather {
         precipitationProb: HOURLY.precipitation_probability[INDEX],
         windSpeed: Math.round(HOURLY.wind_speed_10m[INDEX] * 0.621371),
     };
+}
+
+/**
+ * Gets the start and stop indices for data on a specific day.
+ * @param dateTimeArray Array containing all date-time strings.
+ * @param date The target date.
+ * @returns An object containing the start and stop indices.
+ */
+function getDayIndices(
+    dateTimeArray: string[],
+    date: string
+): { start: number; stop: number } {
+    let start = -1;
+    let stop = -1;
+    for (let i = 0; i < dateTimeArray.length; i++) {
+        if (dateTimeArray[i].split('T')[0] === date) {
+            if (start !== -1) stop = i;
+            else start = i;
+        }
+    }
+    return { start, stop };
+}
+
+/**
+ * Uses all weather data and returns data relevant for current data.
+ * @param all Array containing all data.
+ * @returns Array containing all data relating to current date.
+ */
+export function ATD(all: WeatherData): TimeWeather[] {
+    const array: TimeWeather[] = [];
+    const date: string = getDate();
+
+    const HOURLY = all.hourly;
+    const INDICES = getDayIndices(HOURLY.time, date);
+
+    for (let i = INDICES.start; i < INDICES.stop; i++) {
+        const dateTime = HOURLY.time[i].split('T');
+        const data: TimeWeather = {
+            time: dateTime[1],
+            temperature: HOURLY.temperature_2m[i],
+            weatherCode: WCS(HOURLY.weather_code[i], +dateTime[1].split(':')),
+            windSpeed: HOURLY.wind_speed_10m[i],
+            precipitationProb: HOURLY.precipitation_probability[i],
+        };
+        array.push(data);
+    }
+    return array;
 }
