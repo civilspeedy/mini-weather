@@ -7,53 +7,51 @@ import Icon from './components/Icon';
 import { useWeather } from './logic/hooks';
 
 export default function App(): React.JSX.Element {
-    const weather = useWeather();
-    const [error, setError] = useState<boolean>(true);
+  const weather = useWeather();
+  const [error, setError] = useState<boolean>(true);
 
-    return (
+  return (
+    <>
+      {error ? (
         <>
-            {error ? (
-                <>
-                    <div id='top'>
-                        <div id='left'>
-                            <div
-                                id='row'
-                                style={{ gap: 20 }}
-                            >
-                                <CurrentStat
-                                    value={weather.now?.temperature}
-                                    type='temp'
-                                />
-                                <CurrentStat
-                                    value={weather.now?.precipitationProb}
-                                    type='prec'
-                                />
-                            </div>
-                            <div
-                                id='row'
-                                style={{ gap: 20 }}
-                            >
-                                <CurrentStat
-                                    value={0}
-                                    type='humid'
-                                />
-                                <CurrentStat
-                                    value={weather.now?.windSpeed}
-                                    type='wind'
-                                />
-                            </div>
-                        </div>
-                        <div id='right'>
-                            <Time />
-                        </div>
-                    </div>
-                    <div id='bottom'>
-                        <Icon />
-                    </div>
-                </>
-            ) : (
-                <ErrorMessage />
-            )}
+          <div id='top'>
+            <div id='left'>
+              <div
+                id='row'
+                style={{ gap: 20 }}>
+                <CurrentStat
+                  value={weather.now?.temperature}
+                  type='temp'
+                />
+                <CurrentStat
+                  value={weather.now?.precipitationProb}
+                  type='prec'
+                />
+              </div>
+              <div
+                id='row'
+                style={{ gap: 20 }}>
+                <CurrentStat
+                  value={weather.now?.weatherCode}
+                  type='code'
+                />
+                <CurrentStat
+                  value={weather.now?.windSpeed}
+                  type='wind'
+                />
+              </div>
+            </div>
+            <div id='right'>
+              <Time />
+            </div>
+          </div>
+          <div id='bottom'>
+            <Icon />
+          </div>
         </>
-    );
+      ) : (
+        <ErrorMessage />
+      )}
+    </>
+  );
 }
