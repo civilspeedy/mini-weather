@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { getFuture, Weather } from '../logic/weather';
+import { TimeWeather } from '../logic/types';
+import { invoke } from '@tauri-apps/api';
+import { useTime } from '../logic/hooks';
 
-export default function Next(): React.JSX.Element {
-    const [data, setData] = useState<Weather[]>([]);
+type Types = { data: TimeWeather[] };
 
+export default function Next({ data }: Types): React.JSX.Element {
+    const [display, setDisplay] = useState<TimeWeather[]>();
+    const time = useTime();
     useEffect(() => {
-        const currentValue: Weather[] = getFuture(7);
-
-        if (currentValue.length !== 0) {
-            setData(currentValue);
+        let start = -1;
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].time === time.split(':')[0] + ':00') {
+                start = i + 1;
+            }
         }
-    }, []);
 
-    return (
-        <div>
-            {data.map((item, index) => (
-                <div key={index}>
-                    <p>{item.temperature}</p>
-                    <p>{item.windSpeed}</p>
-                </div>
-            ))}
-        </div>
-    );
+        setDisplay(data.slice(start));
+
+        invoke('log', { msg: JSON.stringify(display) });
+    }, [time]);
+
+    return <div></div>;
 }
