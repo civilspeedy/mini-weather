@@ -2,75 +2,75 @@ import { invoke } from '@tauri-apps/api';
 import { useEffect, useState } from 'react';
 import { getDate, getTime, getWeather } from './api';
 import { TimeWeather, WeatherData } from './types';
-import { ATN, SDC } from './conversions';
+import { ATN } from './conversions';
 
 export function useScale(original: number): number {
-    const [size, setSize] = useState<number>(0);
+  const [size, setSize] = useState<number>(0);
 
-    const scale: Promise<number> = invoke('scale', { original: original });
+  const scale: Promise<number> = invoke('scale', { original: original });
 
-    useEffect(() => {
-        const wait = async () => {
-            setSize(await scale);
-        };
+  useEffect(() => {
+    const wait = async () => {
+      setSize(await scale);
+    };
 
-        wait();
-    }, []);
+    wait();
+  }, []);
 
-    return size;
+  return size;
 }
 
 export function useWeather() {
-    const [all, setAll] = useState<WeatherData>();
-    // have this also return now and future weather
-    const [now, setNow] = useState<TimeWeather>();
+  const [all, setAll] = useState<WeatherData>();
+  // have this also return now and future weather
+  const [now, setNow] = useState<TimeWeather>();
 
-    useEffect(() => {
-        const requestData = async (): Promise<void> => {
-            const tempData: WeatherData = await getWeather();
-            setAll(tempData);
-            setNow(ATN(tempData));
-        };
+  useEffect(() => {
+    const requestData = async (): Promise<void> => {
+      const tempData: WeatherData = await getWeather();
+      setAll(tempData);
+      setNow(ATN(tempData));
+    };
 
-        requestData();
+    requestData();
 
-        const interval = setInterval(requestData, 360000);
-        return () => clearInterval(interval);
-    }, []);
+    const interval = setInterval(requestData, 360000);
+    return () => clearInterval(interval);
+  }, []);
 
-    return { all, now };
+  return { all, now };
 }
 
 export function useTime(): string {
-    const [time, setTime] = useState<string>('00:00');
+  const [time, setTime] = useState<string>('00:00');
 
-    useEffect(() => {
-        const fetchTime = () => {
-            const FETCHED_TIME: string = getTime();
-            setTime(FETCHED_TIME);
-        };
+  useEffect(() => {
+    const fetchTime = () => {
+      const FETCHED_TIME: string = getTime();
+      setTime(FETCHED_TIME);
+    };
 
-        const interval = setInterval(fetchTime, 1000);
+    const interval = setInterval(fetchTime, 1000);
 
-        return () => clearInterval(interval);
-    }, []);
+    return () => clearInterval(interval);
+  }, []);
 
-    return time;
+  return time;
 }
 
 export function useDate(): string {
-    const [date, setDate] = useState<string>('yyyy-mm-dd');
+  const [date, setDate] = useState<string>('yyyy-mm-dd');
 
-    useEffect(() => {
-        const fetchDate = () => {
-            const FETCHED_DATE: string = getDate();
-            setDate(FETCHED_DATE);
-        };
+  useEffect(() => {
+    const fetchDate = () => {
+      const FETCHED_DATE: string = getDate();
+      setDate(FETCHED_DATE);
+    };
 
-        const interval = setInterval(fetchDate, 86_400_000);
+    const interval = setInterval(fetchDate, 86_400_000);
 
-        return () => clearInterval(interval);
-    }, []);
+    return () => clearInterval(interval);
+  }, []);
 
-    return date;
+  return date;
 }
