@@ -19,7 +19,7 @@ export default function Next({ data }: Types): React.JSX.Element {
         setDisplay(data.slice(start));
 
         invoke('log', { msg: JSON.stringify(display) });
-    }, [time]);
+    }, [data]);
 
     return <div></div>;
 }
