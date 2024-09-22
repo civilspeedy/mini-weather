@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { TimeWeather } from '../logic/types';
 import { invoke } from '@tauri-apps/api';
 import { useTime } from '../logic/hooks';
+import Icon from './Icon';
 
 type Types = { data: TimeWeather[] };
 
@@ -21,5 +22,15 @@ export default function Next({ data }: Types): React.JSX.Element {
         invoke('log', { msg: JSON.stringify(display) });
     }, [data]);
 
-    return <div></div>;
+    return (
+        <div style={{ flexDirection: 'row', display: 'flex' }}>
+            {display?.map((item, index) => (
+                <Icon
+                    key={index}
+                    temperature={item.temperature}
+                    weatherCode={item.weatherCode}
+                />
+            ))}
+        </div>
+    );
 }

@@ -21,10 +21,38 @@ export function useScale(original: number): number {
 }
 
 export function useWeather() {
-    const [all, setAll] = useState<WeatherData>();
+    const [all, setAll] = useState<WeatherData>({
+        latitude: 0,
+        longitude: 0,
+        generationtime_ms: 0,
+        utc_offset_seconds: 0,
+        timezone: 'GMT',
+        timezone_abbreviation: 'GMT',
+        elevation: 38,
+        hourly_units: {
+            time: 'iso8601',
+            temperature_2m: '°C',
+            precipitation_probability: '%',
+            weather_code: 'wmo code',
+            wind_speed_10m: 'km/h',
+        },
+        hourly: {
+            time: ['yyyy-mm-ddT00:00'],
+            temperature_2m: [0],
+            precipitation_probability: [0],
+            weather_code: [0],
+            wind_speed_10m: [0],
+        },
+    });
     // have this also return now and future weather
-    const [now, setNow] = useState<TimeWeather>();
-    const [day, setDay] = useState<TimeWeather[]>();
+    const [now, setNow] = useState<TimeWeather>({
+        time: '00:00',
+        temperature: 0,
+        windSpeed: 0,
+        weatherCode: '',
+        precipitationProb: 0,
+    });
+    const [day, setDay] = useState<TimeWeather[]>([]);
 
     useEffect(() => {
         const requestData = async (): Promise<void> => {
