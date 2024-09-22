@@ -113,3 +113,32 @@ export function ATD(all: WeatherData): TimeWeather[] {
     }
     return array;
 }
+
+/**
+ * Date-String to String - Mostly to get month name.
+ * @param dateString The date-string to be converted.
+ * @returns The converted string.
+ */
+export function DsTS(dateString: string) {
+    const MONTHS: string[] = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+    ];
+
+    const split: string[] = dateString.split('-');
+    const YEAR: string = split[0];
+    const MONTH: string = MONTHS[+split[1] - 1];
+    const DAY: string = split[2];
+
+    return `${DAY} ${MONTH} ${YEAR}`;
+}

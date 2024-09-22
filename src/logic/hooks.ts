@@ -97,6 +97,8 @@ export function useDate(): string {
             setDate(FETCHED_DATE);
         };
 
+        fetchDate();
+
         const interval = setInterval(fetchDate, 86_400_000);
 
         return () => clearInterval(interval);

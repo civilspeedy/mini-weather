@@ -16,8 +16,9 @@ export default function Next({ data }: Types): React.JSX.Element {
                 start = i + 1;
             }
         }
+        let stop = start + 5;
 
-        setDisplay(data.slice(start));
+        setDisplay(data.slice(start, stop));
 
         invoke('log', { msg: JSON.stringify(display) });
     }, [data]);
@@ -25,11 +26,21 @@ export default function Next({ data }: Types): React.JSX.Element {
     return (
         <div style={{ flexDirection: 'row', display: 'flex' }}>
             {display?.map((item, index) => (
-                <Icon
-                    key={index}
-                    temperature={item.temperature}
-                    weatherCode={item.weatherCode}
-                />
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 0,
+                    }}>
+                    <Icon
+                        key={index}
+                        temperature={item.temperature}
+                        weatherCode={item.weatherCode}
+                    />
+                    <p style={{ margin: 0, textAlign: 'center' }}>
+                        {item.time}
+                    </p>
+                </div>
             ))}
         </div>
     );
