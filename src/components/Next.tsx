@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { TimeWeather } from '../logic/types';
-import { invoke } from '@tauri-apps/api';
 import { useTime } from '../logic/hooks';
 import Icon from './Icon';
 
@@ -24,7 +23,6 @@ export default function Next({ data }: Types): React.JSX.Element {
         const indices = getStartStop();
         setDisplay(data.slice(indices.start, indices.stop));
 
-        invoke('log', { msg: JSON.stringify(display) });
     }, [data]);
 
     return (

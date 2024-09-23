@@ -30,13 +30,7 @@ export type WeatherData = {
     weather_code: string;
     wind_speed_10m: string;
   };
-  hourly: {
-    time: string[];
-    temperature_2m: number[];
-    precipitation_probability: number[];
-    weather_code: number[];
-    wind_speed_10m: number[];
-  };
+  hourly: Hourly
 };
 
 export type DoubleIndex = {
@@ -51,3 +45,11 @@ export type TimeWeather = {
   weatherCode: string;
   windSpeed: number;
 };
+
+export type Hourly =  {
+  time: string[];
+  temperature_2m: Int8Array;
+  precipitation_probability: Int8Array;
+  weather_code: Int8Array;
+  wind_speed_10m: Int8Array;
+}

@@ -1,4 +1,4 @@
-import { SDC } from './conversions';
+import { DTDs, SDC } from './conversions';
 import { LocationData, WeatherData } from './types';
 
 const getIP = async (): Promise<string> =>
@@ -24,13 +24,11 @@ export async function getWeather(): Promise<WeatherData> {
 }
 
 export const getTime = (): string => {
-  const DATE = new Date();
-  return SDC(DATE.getHours()) + ':' + SDC(DATE.getMinutes());
+  const date = new Date();
+  return SDC(date.getHours()) + ':' + SDC(date.getMinutes());
 };
 
 export const getDate = (): string => {
-  const DATE: Date = new Date();
-  return `${DATE.getFullYear()}-${SDC(DATE.getUTCMonth() + 1)}-${SDC(
-    DATE.getUTCDate()
-  )}`;
+  const date: Date = new Date();
+  return DTDs(date);
 };
