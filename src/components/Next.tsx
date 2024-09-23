@@ -10,15 +10,19 @@ export default function Next({ data }: Types): React.JSX.Element {
     const [display, setDisplay] = useState<TimeWeather[]>();
     const time = useTime();
     useEffect(() => {
-        let start = -1;
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].time === time.split(':')[0] + ':00') {
-                start = i + 1;
+        const getStartStop = () => {
+            let start = -1;
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].time === time.split(':')[0] + ':00') {
+                    start = i + 1;
+                }
             }
-        }
-        let stop = start + 5;
+            let stop = start + 5;
+            return { start, stop };
+        };
 
-        setDisplay(data.slice(start, stop));
+        const indices = getStartStop();
+        setDisplay(data.slice(indices.start, indices.stop));
 
         invoke('log', { msg: JSON.stringify(display) });
     }, [data]);
