@@ -59,6 +59,7 @@ export function useWeather() {
   useEffect(() => {
     const requestData = async (): Promise<void> => {
       const tempData: WeatherData = await getWeather();
+      invoke('log', {msg: 'requesting'})
       setAll(tempData);
       setNow(ATN(tempData));
       setDay(ATD(tempData));
