@@ -1,6 +1,7 @@
 import { Hourly, TimeWeather, WeatherData } from './types';
 import codes from '../assets/weather_codes.json';
 import { getDate, getTime } from './api';
+import { invoke } from '@tauri-apps/api';
 
 /**
  * Single Digit Checker - checks if a number is less than 10 and adds a 0 at the front if so.
@@ -8,7 +9,7 @@ import { getDate, getTime } from './api';
  * @returns The number as string with required formatting for date and time uses.
  */
 export function SDC(number: number): string {
-  return number < 10 ? '0' + number : number.toString();
+    return number < 10 ? '0' + number : number.toString();
 }
 
 /**
@@ -18,10 +19,10 @@ export function SDC(number: number): string {
  * @returns The index.
  */
 function getIndex(array: string[], target: string): number {
-  for (let i = 0; i < array.length; i++) {
-    if (array[i] === target) return i;
-  }
-  return -1;
+    for (let i = 0; i < array.length; i++) {
+        if (array[i] === target) return i;
+    }
+    return -1;
 }
 
 /**
@@ -31,15 +32,15 @@ function getIndex(array: string[], target: string): number {
  * @returns A string describing the weather code.
  */
 function WCS(code: number, hours: number): string {
-  type Key = keyof typeof codes;
+    type Key = keyof typeof codes;
 
-  const codeAsString: string = code.toString();
+    const codeAsString: string = code.toString();
 
-  if (codeAsString in codes) {
-    const stringCode = codes[codeAsString as Key];
-    return hours >= 7 ? stringCode.day : stringCode.night;
-  }
-  return '';
+    if (codeAsString in codes) {
+        const stringCode = codes[codeAsString as Key];
+        return hours >= 7 ? stringCode.day : stringCode.night;
+    }
+    return '';
 }
 
 const getHours = (time: string): number => +time.split(':')[0];
@@ -51,14 +52,16 @@ const getHours = (time: string): number => +time.split(':')[0];
  * @returns An object containing data linked to provided index.
  */
 function toTimeWeather(hourly: Hourly, index: number): TimeWeather {
-  const time = hourly.time[index].split('T')[1];
-  return {
-    time: time,
-    temperature: hourly.temperature_2m[index],
-    weatherCode: WCS(hourly.weather_code[index], +time.split(':')[0]),
-    precipitationProb: hourly.precipitation_probability[index],
-    windSpeed: Math.round(hourly.wind_speed_10m[index] * 0.621371),
-  };
+    const time = hourly.time[index].split('T')[1];
+
+    invoke('log', { msg: hourly });
+    return {
+        time: time,
+        temperature: hourly.temperature_2m[index],
+        weatherCode: WCS(hourly.weather_code[index], +time.split(':')[0]),
+        precipitationProb: hourly.precipitation_probability[index],
+        windSpeed: Math.round(hourly.wind_speed_10m[index] * 0.621371),
+    };
 }
 
 /**
@@ -67,14 +70,15 @@ function toTimeWeather(hourly: Hourly, index: number): TimeWeather {
  * @returns An object containing all data that applies now.
  */
 export function ATN(all: WeatherData): TimeWeather {
-  const time = getTime();
-  const hours = getHours(time);
+    invoke('log', { msg: 'all2=' + JSON.stringify(all) });
+    const time = getTime();
+    const hours = getHours(time);
 
-  const dateTime: string = getDate() + 'T' + hours + ':' + '00';
-  const hourly = all.hourly;
-  const index: number = getIndex(hourly.time, dateTime);
+    const dateTime: string = getDate() + 'T' + hours + ':' + '00';
+    const hourly = all.hourly;
+    const index: number = getIndex(hourly.time, dateTime);
 
-  return toTimeWeather(hourly, index);
+    return toTimeWeather(hourly, index);
 }
 
 /**
@@ -84,23 +88,23 @@ export function ATN(all: WeatherData): TimeWeather {
  * @returns Array of TimeWeather data.
  */
 function getDayIndices(
-  dateTimeArray: string[],
-  date: string,
-  hourly: Hourly
+    dateTimeArray: string[],
+    date: string,
+    hourly: Hourly
 ): TimeWeather[] {
-  let start = -1;
-  let stop = -1;
-  for (let i = 0; i < dateTimeArray.length; i++) {
-    if (dateTimeArray[i].split('T')[0] === date) {
-      if (start !== -1) stop = i;
-      else start = i;
+    let start = -1;
+    let stop = -1;
+    for (let i = 0; i < dateTimeArray.length; i++) {
+        if (dateTimeArray[i].split('T')[0] === date) {
+            if (start !== -1) stop = i;
+            else start = i;
+        }
     }
-  }
 
-  const array: TimeWeather[] = [];
-  for (let i = start; i < stop; i++) array.push(toTimeWeather(hourly, i));
+    const array: TimeWeather[] = [];
+    for (let i = start; i < stop; i++) array.push(toTimeWeather(hourly, i));
 
-  return array;
+    return array;
 }
 
 /**
@@ -109,7 +113,7 @@ function getDayIndices(
  * @returns Array containing all data relating to current date.
  */
 export function ATD(all: WeatherData): TimeWeather[] {
-  return getDayIndices(all.hourly.time, getDate(), all.hourly);
+    return getDayIndices(all.hourly.time, getDate(), all.hourly);
 }
 
 /**
@@ -118,27 +122,27 @@ export function ATD(all: WeatherData): TimeWeather[] {
  * @returns The converted string.
  */
 export function DsTS(dateString: string) {
-  const months: readonly string[] = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
+    const months: readonly string[] = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+    ];
 
-  const split: string[] = dateString.split('-');
-  const year: string = split[0];
-  const month: string = months[+split[1] - 1];
-  const day: string = split[2];
+    const split: string[] = dateString.split('-');
+    const year: string = split[0];
+    const month: string = months[+split[1] - 1];
+    const day: string = split[2];
 
-  return `${day} ${month} ${year}`;
+    return `${day} ${month} ${year}`;
 }
 
 /**
@@ -147,9 +151,9 @@ export function DsTS(dateString: string) {
  * @returns The Date value as a string.
  */
 export function DTDs(dateValue: Date): string {
-  return `${dateValue.getFullYear()}-${SDC(dateValue.getUTCMonth() + 1)}-${SDC(
-    dateValue.getUTCDate()
-  )}`;
+    return `${dateValue.getFullYear()}-${SDC(
+        dateValue.getUTCMonth() + 1
+    )}-${SDC(dateValue.getUTCDate())}`;
 }
 
 /**
@@ -158,8 +162,8 @@ export function DTDs(dateValue: Date): string {
  * @returns The date formatted as a date-string.
  */
 function getDayFromNow(number: number): string {
-  const today = new Date();
-  return DTDs(new Date(today.setDate(today.getDate() + number))); //from https://stackoverflow.com/a/3818198
+    const today = new Date();
+    return DTDs(new Date(today.setDate(today.getDate() + number))); //from https://stackoverflow.com/a/3818198
 }
 
 /**
@@ -168,5 +172,5 @@ function getDayFromNow(number: number): string {
  * @returns  An array containing all weather data for next day.
  */
 export function ATM(all: WeatherData): TimeWeather[] {
-  return getDayIndices(all.hourly.time, getDayFromNow(1), all.hourly);
+    return getDayIndices(all.hourly.time, getDayFromNow(1), all.hourly);
 }
