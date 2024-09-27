@@ -1,4 +1,4 @@
-import template from '../assets/template.json';
+import template from '../assets/json/template.json';
 
 export type LocationData = {
     status: string;
@@ -25,4 +25,12 @@ export type TimeWeather = {
     windSpeed: number;
 };
 
-export type Weather = keyof typeof template;
+export type Weather = typeof template;
+
+export type Hourly = {
+    time: string[];
+    temperature_2m: Int8Array;
+    precipitation_probability: Int8Array;
+    weather_code: Int8Array;
+    wind_speed_10m: Int8Array;
+};

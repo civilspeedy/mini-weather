@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api';
 import { useEffect, useState } from 'preact/hooks';
-import { LocationData, Weather } from './types';
+import { Hourly, LocationData, TimeWeather, Weather } from './types';
+import codes from '../assets/json/codes.json';
 
 export const useTime = (): string => {
     const [time, setTime] = useState<string>('');
@@ -19,6 +20,20 @@ export const useTime = (): string => {
     }, []);
 
     return time;
+};
+
+// dont forget string conversion for numbers
+export const useDate = () => {
+    const [date, setDate] = useState<string>('');
+
+    useEffect(() => {
+        const dateObj = new Date();
+        setDate(
+            `${dateObj.getFullYear()}-${SDC(dateObj.getUTCMonth() + 1)}-${SDC(
+                dateObj.getUTCDate()
+            )}`
+        );
+    }, []);
 };
 
 export const useWeather = () => {
@@ -53,9 +68,65 @@ export const useWeather = () => {
     return weather;
 };
 
+/**
+ * For getting the index of a date-time to locate relevant data.
+ * @param target The specific date-time string.
+ * @returns The index.
+ */
+function getIndex(target: string): number {
+    const array = useWeather()?.hourly.time;
+    if (array) {
+        for (let i = 0; i < array.length; i++) {
+            if (array[i] === target) return i;
+        }
+    }
+    return -1;
+}
+
+/**
+ * Weather Code (to) String - take a weather code number and returns the descriptive string.
+ * @param code The number value for the weather code.
+ * @param hours The time of day as some codes differ based on time.
+ * @returns A string describing the weather code.
+ */
+function WCS(code: number, hours: number): string {
+    type Key = keyof typeof codes;
+
+    const codeAsString: string = code.toString();
+
+    if (codeAsString in codes) {
+        const stringCode = codes[codeAsString as Key];
+        return hours >= 7 ? stringCode.day : stringCode.night;
+    }
+    return '';
+}
+
+/**
+ * Takes an index and returns formatted data.
+ * @param hourly The object containing hourly data.
+ * @param index The index relating to when.
+ * @returns An object containing data linked to provided index.
+ */
+function toTimeWeather(hourly: Hourly, index: number): TimeWeather {
+    const time = hourly.time[index].split('T')[1];
+
+    invoke('log', { msg: hourly });
+    return {
+        time: time,
+        temperature: hourly.temperature_2m[index],
+        weatherCode: WCS(hourly.weather_code[index], +time.split(':')[0]),
+        precipitationProb: hourly.precipitation_probability[index],
+        windSpeed: Math.round(hourly.wind_speed_10m[index] * 0.621371),
+    };
+}
+
 export const useNow = () => {
     const weather: Weather | undefined = useWeather();
+    const time: string = useTime();
+    const hours: string = time.split(':')[0];
     const [display, setDisplay] = useState();
 
-    useEffect(() => {}, []);
+    useEffect(() => {
+        const index = getIndex();
+    }, []);
 };
