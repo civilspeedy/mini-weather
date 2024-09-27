@@ -55,12 +55,13 @@ export function useWeather() {
     });
     const [day, setDay] = useState<TimeWeather[]>([]);
     const [tomorrow, setTomorrow] = useState<TimeWeather[]>([]);
+    invoke('log', { msg: 'test' });
 
     useEffect(() => {
         const requestData = async (): Promise<void> => {
             const tempData: WeatherData = await getWeather(); // hmm
             setAll(tempData);
-            invoke('log', { msg: JSON.stringify(tempData) });
+
             setNow(ATN(tempData));
             setDay(ATD(tempData));
             setTomorrow(ATM(tempData));
