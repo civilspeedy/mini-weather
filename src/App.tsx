@@ -1,9 +1,11 @@
 import './App.css';
+import { storeWeather } from './logic/fileSystem';
 import { useTime, useWeather } from './logic/hooks';
-
+storeWeather();
 function App() {
-    const time = useTime();
-    const weather = useWeather();
+    const time = 'test';
+    const weather = 'test';
+
     return (
         <div>
             <p>{time}</p>
