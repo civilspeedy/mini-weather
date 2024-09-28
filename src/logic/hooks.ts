@@ -1,7 +1,16 @@
-import { invoke } from '@tauri-apps/api';
 import { useEffect, useState } from 'preact/hooks';
-import { Hourly, LocationData, TimeWeather, Weather } from './types';
+import { LocationData, Weather } from './types';
 import codes from '../assets/json/codes.json';
+import { log } from './invoker';
+
+/**
+ * checks if a number is less than 10 and adds a 0 at the front if so.
+ * @param number The number to be converted to string.
+ * @returns The number as string with required formatting for date and time uses.
+ */
+function singleDigitChecker(number: number): string {
+    return number < 10 ? '0' + number : number.toString();
+}
 
 export const useTime = (): string => {
     const [time, setTime] = useState<string>('');
@@ -27,19 +36,29 @@ export const useDate = () => {
     const [date, setDate] = useState<string>('');
 
     useEffect(() => {
-        const dateObj = new Date();
-        setDate(
-            `${dateObj.getFullYear()}-${SDC(dateObj.getUTCMonth() + 1)}-${SDC(
-                dateObj.getUTCDate()
-            )}`
-        );
+        const getDate = () => {
+            const dateObj = new Date();
+            const year = dateObj.getFullYear();
+            const month = singleDigitChecker(dateObj.getUTCMonth() + 1);
+            const day = singleDigitChecker(dateObj.getUTCDate());
+            setDate(year + '-' + month + '-' + day);
+        };
+
+        getDate();
+
+        const interval = setInterval(getDate, 8.64e7);
+
+        return () => clearInterval(interval);
     }, []);
+
+    return date;
 };
 
 export const useWeather = () => {
     const [weather, setWeather] = useState<Weather>();
 
     useEffect(() => {
+        log('weather', false);
         const getWeather = async () => {
             const ipRaw: Response = await fetch('https://api.ipify.org');
             const ip: string = await ipRaw.text();
@@ -63,33 +82,16 @@ export const useWeather = () => {
         return () => clearInterval(interval);
     }, []);
 
-    invoke('log', { msg: 'test' + JSON.stringify(weather) });
-
     return weather;
 };
 
 /**
- * For getting the index of a date-time to locate relevant data.
- * @param target The specific date-time string.
- * @returns The index.
- */
-function getIndex(target: string): number {
-    const array = useWeather()?.hourly.time;
-    if (array) {
-        for (let i = 0; i < array.length; i++) {
-            if (array[i] === target) return i;
-        }
-    }
-    return -1;
-}
-
-/**
- * Weather Code (to) String - take a weather code number and returns the descriptive string.
+ * Takes a weather code number and returns the descriptive string.
  * @param code The number value for the weather code.
  * @param hours The time of day as some codes differ based on time.
  * @returns A string describing the weather code.
  */
-function WCS(code: number, hours: number): string {
+export function weatherCodeToString(code: number, hours: number): string {
     type Key = keyof typeof codes;
 
     const codeAsString: string = code.toString();
@@ -100,33 +102,3 @@ function WCS(code: number, hours: number): string {
     }
     return '';
 }
-
-/**
- * Takes an index and returns formatted data.
- * @param hourly The object containing hourly data.
- * @param index The index relating to when.
- * @returns An object containing data linked to provided index.
- */
-function toTimeWeather(hourly: Hourly, index: number): TimeWeather {
-    const time = hourly.time[index].split('T')[1];
-
-    invoke('log', { msg: hourly });
-    return {
-        time: time,
-        temperature: hourly.temperature_2m[index],
-        weatherCode: WCS(hourly.weather_code[index], +time.split(':')[0]),
-        precipitationProb: hourly.precipitation_probability[index],
-        windSpeed: Math.round(hourly.wind_speed_10m[index] * 0.621371),
-    };
-}
-
-export const useNow = () => {
-    const weather: Weather | undefined = useWeather();
-    const time: string = useTime();
-    const hours: string = time.split(':')[0];
-    const [display, setDisplay] = useState();
-
-    useEffect(() => {
-        const index = getIndex();
-    }, []);
-};

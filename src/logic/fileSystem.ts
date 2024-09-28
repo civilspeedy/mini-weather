@@ -1,13 +1,16 @@
-import { BaseDirectory, writeTextFile } from '@tauri-apps/api/fs';
+import { BaseDirectory, exists, writeTextFile } from '@tauri-apps/api/fs';
 import { log } from './invoker';
-import { Weather } from './types';
 
-export async function writeWeatherData(data: Weather) {
-    // something
+export async function writeWeatherData(data: object) {
+    const FILE = 'json/data.json';
     try {
-        await writeTextFile('json/data.json', JSON.stringify(data));
+        const doesExist = await exists(FILE);
+        log(doesExist, false);
+        await writeTextFile(FILE, JSON.stringify(data), {
+            dir: BaseDirectory.AppData,
+        });
         log('Saved file', false);
     } catch (e) {
-        log('Failed to save file: ' + e, true);
+        log(e, true);
     }
 }
