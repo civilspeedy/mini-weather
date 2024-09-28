@@ -67,7 +67,6 @@ export const useWeather = () => {
 
     return weather;
 };
-<<<<<<< Updated upstream
 
 /**
  * For getting the index of a date-time to locate relevant data.
@@ -131,5 +130,3 @@ export const useNow = () => {
         const index = getIndex();
     }, []);
 };
-=======
->>>>>>> Stashed changes

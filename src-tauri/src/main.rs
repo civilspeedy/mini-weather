@@ -23,6 +23,11 @@ fn log(msg: &str) {
     println!("LOG:{}", msg)
 }
 
+#[tauri::command]
+fn error_log(msg: &str) {
+    println!("ERROR:{}", msg);
+}
+
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
@@ -32,7 +37,7 @@ fn main() {
             app.manage(window);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![scale, log])
+        .invoke_handler(tauri::generate_handler![scale, log, error_log])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
