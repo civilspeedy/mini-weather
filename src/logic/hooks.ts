@@ -119,3 +119,14 @@ function toTimeWeather(hourly: Hourly, index: number): TimeWeather {
         windSpeed: Math.round(hourly.wind_speed_10m[index] * 0.621371),
     };
 }
+
+export const useNow = () => {
+    const weather: Weather | undefined = useWeather();
+    const time: string = useTime();
+    const hours: string = time.split(':')[0];
+    const [display, setDisplay] = useState();
+
+    useEffect(() => {
+        const index = getIndex();
+    }, []);
+};

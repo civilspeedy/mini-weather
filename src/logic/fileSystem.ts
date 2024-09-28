@@ -1,12 +1,13 @@
-import { invoke } from '@tauri-apps/api';
-import { writeTextFile } from '@tauri-apps/api/fs';
+import { BaseDirectory, writeTextFile } from '@tauri-apps/api/fs';
+import { log } from './invoker';
+import { Weather } from './types';
 
-export async function storeWeather() {
-    invoke('log', { msg: 'test' });
+export async function writeWeatherData(data: Weather) {
+    // something
     try {
-        await writeTextFile('../src/assets/json/test.txt', 'test');
-        invoke('log', { msg: 'File written successfully' });
-    } catch (error) {
-        invoke('log', { msg: 'Error writing file:' + error });
+        await writeTextFile('json/data.json', JSON.stringify(data));
+        log('Saved file', false);
+    } catch (e) {
+        log('Failed to save file: ' + e, true);
     }
 }
