@@ -48,7 +48,7 @@ export const useDate = () => {
 
         getDate();
 
-        const interval = setInterval(getDate, 8.64e7);
+        const interval = setInterval(getDate, 60000);
 
         return () => clearInterval(interval);
     }, []);

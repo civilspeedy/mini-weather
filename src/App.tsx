@@ -74,6 +74,26 @@ export default function App() {
         return data;
     };
 
+    const dateWithWords = () => {
+        const split = date.split('-');
+        const MONTHS: readonly string[] = [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
+        ];
+
+        // add day of the week
+    };
+
     useEffect(() => {
         const index: number = getIndex(date + 'T' + time.split(':')[0] + ':00');
         const nowData: TimeWeather = getData(index);
