@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
 import { LocationData, Weather } from './types';
-import codes from '../assets/json/codes.json';
 import { log } from './invoker';
 
 /**
@@ -18,7 +17,11 @@ export const useTime = (): string => {
     useEffect(() => {
         const getTime = () => {
             const date = new Date();
-            setTime(date.getHours() + ':' + date.getMinutes());
+            setTime(
+                singleDigitChecker(date.getHours()) +
+                    ':' +
+                    singleDigitChecker(date.getMinutes())
+            );
         };
 
         getTime();
@@ -31,7 +34,6 @@ export const useTime = (): string => {
     return time;
 };
 
-// dont forget string conversion for numbers
 export const useDate = () => {
     const [date, setDate] = useState<string>('');
 
@@ -84,21 +86,3 @@ export const useWeather = () => {
 
     return weather;
 };
-
-/**
- * Takes a weather code number and returns the descriptive string.
- * @param code The number value for the weather code.
- * @param hours The time of day as some codes differ based on time.
- * @returns A string describing the weather code.
- */
-export function weatherCodeToString(code: number, hours: number): string {
-    type Key = keyof typeof codes;
-
-    const codeAsString: string = code.toString();
-
-    if (codeAsString in codes) {
-        const stringCode = codes[codeAsString as Key];
-        return hours >= 7 ? stringCode.day : stringCode.night;
-    }
-    return '';
-}

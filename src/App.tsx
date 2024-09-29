@@ -1,19 +1,20 @@
 import { useEffect, useState } from 'preact/hooks';
 import './App.css';
-import {
-    useDate,
-    useTime,
-    useWeather,
-    weatherCodeToString,
-} from './logic/hooks';
+import { useDate, useTime, useWeather } from './logic/hooks';
 import { TimeWeather } from './logic/types';
+import codes from '../src/assets/json/codes.json';
 
-function App() {
+export default function App() {
     const [now, setNow] = useState<TimeWeather>();
     const weather = useWeather();
     const date = useDate();
     const time = useTime();
 
+    /**
+     * Returns index relating to date and time.
+     * @param target Date-time string relating to data being searched for.
+     * @returns The index correlating to data.
+     */
     const getIndex = (target: string): number => {
         const array = weather?.hourly.time;
         if (array) {
@@ -24,6 +25,29 @@ function App() {
         return -1;
     };
 
+    /**
+     * Takes a weather code number and returns the descriptive string.
+     * @param code The number value for the weather code.
+     * @param hours The time of day as some codes differ based on time.
+     * @returns A string describing the weather code.
+     */
+    const weatherCodeToString = (code: number, hours: number) => {
+        type Key = keyof typeof codes;
+
+        const codeAsString: string = code.toString();
+
+        if (codeAsString in codes) {
+            const stringCode = codes[codeAsString as Key];
+            return hours >= 7 ? stringCode.day : stringCode.night;
+        }
+        return '';
+    };
+
+    /**
+     * Uses provided index to return all relevant data.
+     * @param index The index relating to date and time of data
+     * @returns Object containing relevant data.
+     */
     const getData = (index: number): TimeWeather => {
         let data: TimeWeather = {
             time: '',
@@ -40,7 +64,7 @@ function App() {
                 time: time,
                 temperature: hourly.temperature_2m[index],
                 weatherCode: weatherCodeToString(
-                    hourly.weather_code[index],
+                    weather.hourly.weather_code[index],
                     +time.split(':')[0]
                 ),
                 precipitationProb: hourly.precipitation_probability[index],
@@ -58,11 +82,9 @@ function App() {
 
     return (
         <div>
-            <p>{weather?.hourly.temperature_2m[0]}</p>
-            <p>{date}</p>
-            <p>{time}</p>
+            <p>temperature: {now?.temperature}</p>
+            <p>wind speed: {now?.windSpeed}</p>
+            <p>weather code: {now?.weatherCode}</p>
         </div>
     );
 }
-
-export default App;
