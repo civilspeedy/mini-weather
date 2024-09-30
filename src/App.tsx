@@ -6,7 +6,9 @@ import codes from '../src/assets/json/codes.json';
 
 export default function App() {
     const [now, setNow] = useState<TimeWeather>();
-    const weather = useWeather();
+    const weatherHook = useWeather();
+    const weather = weatherHook.weather;
+    const city = weatherHook.city;
     const date = useDate().date;
     const dateInWords = useDate().inWords;
     const time = useTime();
@@ -84,7 +86,7 @@ export default function App() {
     return (
         <div>
             <p>{dateInWords}</p>
-            <p>wind speed: {now?.windSpeed}</p>
+            <p>{city}</p>
             <p>weather code: {now?.weatherCode}</p>
         </div>
     );

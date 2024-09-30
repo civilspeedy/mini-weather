@@ -105,6 +105,7 @@ export const useDate = () => {
 
 export const useWeather = () => {
     const [weather, setWeather] = useState<Weather>();
+    const [city, setCity] = useState<string>('');
 
     useEffect(() => {
         const getWeather = async () => {
@@ -114,6 +115,7 @@ export const useWeather = () => {
                 'http://ip-api.com/json/' + ip
             );
             const location: LocationData = await locationRaw.json();
+            setCity(location.city);
 
             const data = await fetch(
                 `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m&forecast_days=7`
@@ -130,5 +132,5 @@ export const useWeather = () => {
         return () => clearInterval(interval);
     }, []);
 
-    return weather;
+    return { weather, city };
 };
