@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
 import { LocationData, Weather } from './types';
-import { log } from './invoker';
 
 /**
  * checks if a number is less than 10 and adds a 0 at the front if so.
@@ -36,14 +35,62 @@ export const useTime = (): string => {
 
 export const useDate = () => {
     const [date, setDate] = useState<string>('');
+    const [inWords, setInWords] = useState<string>('');
+
+    const MONTHS: readonly string[] = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+    ];
+
+    const DAYS: readonly string[] = [
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+    ];
 
     useEffect(() => {
         const getDate = () => {
             const dateObj = new Date();
-            const year = dateObj.getFullYear();
-            const month = singleDigitChecker(dateObj.getUTCMonth() + 1);
-            const day = singleDigitChecker(dateObj.getUTCDate());
+            const year: number = dateObj.getFullYear();
+            const month: string = singleDigitChecker(dateObj.getUTCMonth() + 1);
+            const day: string = singleDigitChecker(dateObj.getUTCDate());
+
+            const dayNumber: number = dateObj.getDay();
+            const dayName: string = DAYS[dayNumber];
+            const monthName: string = MONTHS[+month];
+
+            let numberEnd = 'th';
+
+            switch (day[day.length]) {
+                case '1':
+                    numberEnd = 'st';
+                    break;
+                case '2':
+                    numberEnd = 'nd';
+                    break;
+                case '3':
+                    numberEnd = 'rd';
+                    break;
+            }
+
             setDate(year + '-' + month + '-' + day);
+            setInWords(
+                dayName + ' ' + day + numberEnd + ' ' + monthName + ' ' + year
+            );
         };
 
         getDate();
@@ -53,14 +100,13 @@ export const useDate = () => {
         return () => clearInterval(interval);
     }, []);
 
-    return date;
+    return { date, inWords };
 };
 
 export const useWeather = () => {
     const [weather, setWeather] = useState<Weather>();
 
     useEffect(() => {
-        log('weather', false);
         const getWeather = async () => {
             const ipRaw: Response = await fetch('https://api.ipify.org');
             const ip: string = await ipRaw.text();

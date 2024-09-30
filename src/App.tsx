@@ -7,7 +7,8 @@ import codes from '../src/assets/json/codes.json';
 export default function App() {
     const [now, setNow] = useState<TimeWeather>();
     const weather = useWeather();
-    const date = useDate();
+    const date = useDate().date;
+    const dateInWords = useDate().inWords;
     const time = useTime();
 
     /**
@@ -74,26 +75,6 @@ export default function App() {
         return data;
     };
 
-    const dateWithWords = () => {
-        const split = date.split('-');
-        const MONTHS: readonly string[] = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December',
-        ];
-
-        // add day of the week
-    };
-
     useEffect(() => {
         const index: number = getIndex(date + 'T' + time.split(':')[0] + ':00');
         const nowData: TimeWeather = getData(index);
@@ -102,7 +83,7 @@ export default function App() {
 
     return (
         <div>
-            <p>temperature: {now?.temperature}</p>
+            <p>{dateInWords}</p>
             <p>wind speed: {now?.windSpeed}</p>
             <p>weather code: {now?.weatherCode}</p>
         </div>
