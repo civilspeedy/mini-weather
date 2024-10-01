@@ -7,7 +7,7 @@ import template from '../assets/json/template.json';
  * @param number The number to be converted to string.
  * @returns The number as string with required formatting for date and time uses.
  */
-function singleDigitChecker(number: number): string {
+export function singleDigitChecker(number: number): string {
     return number < 10 ? '0' + number : number.toString();
 }
 

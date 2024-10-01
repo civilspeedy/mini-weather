@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'preact/hooks';
 import './App.css';
-import { useDate, useTime, useWeather } from './logic/hooks';
+import {
+    singleDigitChecker,
+    useDate,
+    useTime,
+    useWeather,
+} from './logic/hooks';
 import { TimeWeather } from './logic/types';
 import codes from '../src/assets/json/codes.json';
 
@@ -12,6 +17,7 @@ export default function App() {
         windSpeed: 0,
         precipitationProb: 0,
     });
+    const [next, setNext] = useState<TimeWeather[]>();
     const weatherHook = useWeather();
     const weather = weatherHook.weather;
     const city = weatherHook.city;
@@ -83,24 +89,71 @@ export default function App() {
         return data;
     };
 
-    const getUpcoming = () => {
+    const getDay = (target: string): TimeWeather[] => {
         const timeArray = weather.hourly.time;
+        const array: TimeWeather[] = [];
         let start = -1;
         let stop = -1;
 
         for (let i = 0; i < timeArray.length; i++) {
             const dateString: string = timeArray[i].split('T')[0];
-            if (dateString === date) {
+            if (dateString === target) {
                 if (start !== -1) stop = i;
                 else start = i;
             }
         }
+
+        for (let i = start; i < stop; i++) {
+            array.push(getData(i));
+        }
+
+        return array;
+    };
+
+    const getNext = (): TimeWeather[] => {
+        const dayDataArray = getDay(date);
+
+        const hours = time.split(':')[0];
+        let cutoff = 0;
+
+        for (let i = 0; i < dayDataArray.length; i++) {
+            if (dayDataArray[i].time === hours + ':00') {
+                cutoff = i + 1;
+                break;
+            }
+        }
+
+        const nextArray: TimeWeather[] = dayDataArray.splice(cutoff);
+
+        const difference = 5 - nextArray.length;
+
+        if (difference > 0) {
+            const today: number = Date.parse(date);
+            const tomorrow: Date = new Date(today + 1);
+            const dateString =
+                tomorrow.getUTCFullYear() +
+                '-' +
+                singleDigitChecker(tomorrow.getUTCMonth() + 1) +
+                '-' +
+                singleDigitChecker(tomorrow.getDay());
+
+            const tomorrowData: TimeWeather[] = getDay(dateString);
+
+            for (let i = 0; (i = difference); i++) {
+                nextArray.push(tomorrowData[i]);
+            }
+        }
+
+        return nextArray;
     };
 
     useEffect(() => {
         const index: number = getIndex(date + 'T' + time.split(':')[0] + ':00');
         const nowData: TimeWeather = getData(index);
         setNow(nowData);
+
+        const nextData: TimeWeather[] = getNext();
+        setNext(nextData);
     }, [weather]);
 
     return (
@@ -110,6 +163,14 @@ export default function App() {
             <p>Chance of Rain: {now.precipitationProb}%</p>
             <p>Wind: {now?.windSpeed}mph</p>
             <p>weather code: {now?.weatherCode}</p>
+            <div>
+                {next?.map((item, index) => (
+                    <div key={index}>
+                        <p>{item.temperature}°C</p>
+                        <p>{item.weatherCode}</p>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
