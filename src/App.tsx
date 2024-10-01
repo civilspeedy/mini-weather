@@ -5,7 +5,13 @@ import { TimeWeather } from './logic/types';
 import codes from '../src/assets/json/codes.json';
 
 export default function App() {
-    const [now, setNow] = useState<TimeWeather>();
+    const [now, setNow] = useState<TimeWeather>({
+        time: '00:00',
+        temperature: 0,
+        weatherCode: '',
+        windSpeed: 0,
+        precipitationProb: 0,
+    });
     const weatherHook = useWeather();
     const weather = weatherHook.weather;
     const city = weatherHook.city;
@@ -19,7 +25,7 @@ export default function App() {
      * @returns The index correlating to data.
      */
     const getIndex = (target: string): number => {
-        const array = weather?.hourly.time;
+        const array = weather.hourly.time;
         if (array) {
             for (let i = 0; i < array.length; i++) {
                 if (array[i] === target) return i;
@@ -77,6 +83,20 @@ export default function App() {
         return data;
     };
 
+    const getUpcoming = () => {
+        const timeArray = weather.hourly.time;
+        let start = -1;
+        let stop = -1;
+
+        for (let i = 0; i < timeArray.length; i++) {
+            const dateString: string = timeArray[i].split('T')[0];
+            if (dateString === date) {
+                if (start !== -1) stop = i;
+                else start = i;
+            }
+        }
+    };
+
     useEffect(() => {
         const index: number = getIndex(date + 'T' + time.split(':')[0] + ':00');
         const nowData: TimeWeather = getData(index);
@@ -85,8 +105,10 @@ export default function App() {
 
     return (
         <div>
-            <p>{dateInWords}</p>
-            <p>{city}</p>
+            <p>{city + ' | ' + dateInWords + ' | ' + time}</p>
+            <p>Temperature: {now.temperature}°C</p>
+            <p>Chance of Rain: {now.precipitationProb}%</p>
+            <p>Wind: {now?.windSpeed}mph</p>
             <p>weather code: {now?.weatherCode}</p>
         </div>
     );

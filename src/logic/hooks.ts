@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { LocationData, Weather } from './types';
+import template from '../assets/json/template.json';
 
 /**
  * checks if a number is less than 10 and adds a 0 at the front if so.
@@ -75,7 +76,7 @@ export const useDate = () => {
 
             let numberEnd = 'th';
 
-            switch (day[day.length]) {
+            switch (day.substring(day.length - 1)) {
                 case '1':
                     numberEnd = 'st';
                     break;
@@ -89,7 +90,7 @@ export const useDate = () => {
 
             setDate(year + '-' + month + '-' + day);
             setInWords(
-                dayName + ' ' + day + numberEnd + ' ' + monthName + ' ' + year
+                dayName + ' ' + +day + numberEnd + ' ' + monthName + ' ' + year
             );
         };
 
@@ -104,7 +105,7 @@ export const useDate = () => {
 };
 
 export const useWeather = () => {
-    const [weather, setWeather] = useState<Weather>();
+    const [weather, setWeather] = useState<Weather>(template);
     const [city, setCity] = useState<string>('');
 
     useEffect(() => {

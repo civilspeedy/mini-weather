@@ -12,6 +12,7 @@ fn calculate_scale(state: State<'_, Window>) -> f32 {
     let window_resolution: f32 = WIDTH * HEIGHT;
     monitor_resolution / window_resolution
 }
+
 #[tauri::command]
 fn scale(original: f32, state: State<'_, Window>) -> f32 {
     let floater: f32 = calculate_scale(state) as f32;
