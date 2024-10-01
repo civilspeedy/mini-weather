@@ -9,6 +9,7 @@ import {
 import { TimeWeather } from './logic/types';
 import codes from '../src/assets/json/codes.json';
 
+// data doesn't work when built
 export default function App() {
     const [now, setNow] = useState<TimeWeather>({
         time: '00:00',
@@ -89,6 +90,11 @@ export default function App() {
         return data;
     };
 
+    /**
+     * Gets all data relating to a specific date.
+     * @param target The date-string of the day.
+     * @returns An array of data relating to target.
+     */
     const getDay = (target: string): TimeWeather[] => {
         const timeArray = weather.hourly.time;
         const array: TimeWeather[] = [];
@@ -110,6 +116,10 @@ export default function App() {
         return array;
     };
 
+    /**
+     * Forms an array of weather data for rest of current date.
+     * @returns TimeWeather array.
+     */
     const getNext = (): TimeWeather[] => {
         const dayDataArray = getDay(date);
 
